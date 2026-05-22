@@ -1,0 +1,585 @@
+# METRONIC DIRECTORY BUILDER - BLUEPRINT COMPLETO
+## Fase 2: Implementação da Página de Construção de Directories
+### TechSites.ai | Directory Factory | Maio 2026
+
+---
+
+## 1. VISÃO GERAL
+
+Este documento contém o blueprint completo para implementar a página **Directory Builder** no painel Metronic. A página permite construir um directory completo (de 0 a LIVE) em menos de 30 minutos, totalmente automatizado via workflows N8N.
+
+**URL da página:** `/admin/directory-builder`
+
+**Funcionalidades:**
+- Formulário estruturado em 6 blocos temáticos
+- Validação client-side completa (JavaScript)
+- Trigger de webhook N8N com payload JSON estruturado
+- Polling em tempo real do status de construção
+- Barra de progresso por micro tarefa (MT-01 a MT-11)
+- Log de execução em tempo real
+- Notificação de sucesso com URL do directory LIVE
+
+---
+
+## 2. ESTRUTURA DA PÁGINA
+
+### Layout Metronic
+```
+[Header: Directory Factory Builder]
+  |
+  v
+[Bloco 1: Identidade do Directory]
+  |
+  v
+[Bloco 2: Listings]
+  |
+  v
+[Bloco 3: Conteúudo / Blog SEO]
+  |
+  v
+[Bloco 4: Monetização]
+  |
+  v
+[Bloco 5: Infraestrutura]
+  |
+  v
+[Bloco 6: Progresso e Status]
+  |
+  v
+[Botão: "Construir Directory"]
+  |
+  v
+[Modal: Progress Tracker (aparece após trigger)]
+```
+
+---
+
+## 3. BLOCOS E CAMPOS
+
+### BLOCO 1: Identidade do Directory
+
+**Card Metronic com ícone de identificação**
+
+| Campo | Tipo | Obrigatório | Validação | Exemplo |
+|-------|------|--------------|------------|----------|
+| Nome do Projeto | Text Input | Sim | 3-100 chars | "Dubai Coffee Directory" |
+| Domínio Raiz | Select Dropdown | Sim | Enum fixo | fond.coffee |
+| Subdomínio | Text Input | Sim | a-z0-9-, 2-63 chars | "dubai" |
+| Full Domain (readonly) | Text Input (disabled) | N/A | Auto-gerado | dubai.fond.coffee |
+| Nicho | Text Input | Sim | Min 3 chars | "coffee shops" |
+| Idioma | Select Dropdown | Sim | Enum fixo | en-US |
+| Logo Upload | File Upload (opcional) | Não | .png,.jpg,.svg | - |
+
+**Opções de Domínio:**
+- ama.cafe
+- fond.coffee
+- places.guide
+- cwb.site
+- llc.reviews
+- hho.expert
+
+**Opções de Idioma:**
+- pt-BR (Português Brasil)
+- pt-PT (Português Portugal)
+- en-US (Inglês EUA)
+- en-GB (Inglês UK)
+- es-ES (Espanhol)
+- fr-FR (Francês)
+
+---
+
+### BLOCO 2: Listings
+
+**Card Metronic com ícone de lista**
+
+| Campo | Tipo | Obrigatório | Validação | Exemplo |
+|-------|------|--------------|------------|----------|
+| Número de Listings | Number Input | Sim | 10-10000 | 150 |
+| Fonte dos Dados | Select Dropdown | Sim | Enum fixo | Scrape Genius CSV |
+| CSV Upload (se aplicável) | File Upload | Condicional | .csv | - |
+| GDrive Folder ID (se aplicável) | Text Input | Condicional | - | 1a2b3c4d5e |
+| Categorias (multi) | Tags Input | Não | Separado por vírgula | "Specialty Coffee, Café, Roastery" |
+
+**Opções de Fonte:**
+- Scrape Genius CSV
+- Google Places API
+- Manual CSV Upload
+- Database Import
+
+**Lógica Condicional:**
+- Se "Scrape Genius CSV" → mostrar campo "GDrive Folder ID"
+- Se "Manual CSV Upload" → mostrar campo "CSV Upload"
+- Se "Google Places API" → mostrar campo "API Key" e "Search Query"
+
+---
+
+### BLOCO 3: Conteúudo / Blog SEO
+
+**Card Metronic com ícone de documento**
+
+| Campo | Tipo | Obrigatório | Validação | Exemplo |
+|-------|------|--------------|------------|----------|
+| Posts Informativos | Number Input | Não | 0-1000 | 50 |
+| Reviews Amazon | Number Input | Não | 0-500 | 20 |
+| Reviews Locais Premium | Number Input | Não | 0-200 | 10 |
+| Keywords SEO (multi) | Tags Input | Não | Separado por vírgula | "best coffee dubai, specialty coffee" |
+
+**Total de Artigos:** (auto-calculado e exibido)
+
+---
+
+### BLOCO 4: Monetização
+
+**Card Metronic com ícone de cifrão**
+
+| Campo | Tipo | Obrigatório | Validação | Exemplo |
+|-------|------|--------------|------------|----------|
+| Amazon Affiliate ID | Text Input | Não | - | techsites-20 |
+| Google AdSense ID | Text Input | Não | ca-pub-* | ca-pub-1234567890 |
+| Google Analytics ID | Text Input | Não | G-* | G-XXXXXXXXXX |
+| Preço Listing Premium (USD) | Number Input | Não | Min 0 | 49.99 |
+| Habilitar Restro SaaS | Checkbox | Não | - | ☑️ (para cafés/restaurantes) |
+
+---
+
+### BLOCO 5: Infraestrutura
+
+**Card Metronic com ícone de servidor**
+
+| Campo | Tipo | Obrigatório | Validação | Exemplo |
+|-------|------|--------------|------------|----------|
+| GitHub Repo Name | Text Input | Sim | a-zA-Z0-9-_ | df-fond-coffee-dubai |
+| GitHub Owner (readonly) | Text Input (disabled) | N/A | Auto | reynaldodallin |
+| Cloudflare Zone ID | Text Input | Sim | 32 hex chars | abc123def456... |
+| GDrive Backup Folder ID | Text Input | Não | - | 1a2b3c4d5e6f |
+| N8N Webhook URL (readonly) | Text Input (disabled) | N/A | Auto | https://n8n.waas.host/webhook/directory-factory |
+
+**Nota:** O webhook URL é fixo e configurado no sistema.
+
+---
+
+### BLOCO 6: Progresso e Status
+
+**Card Metronic com ícone de gráfico**
+
+**Este bloco só aparece DEPOIS de clicar em "Construir Directory"**
+
+Componentes:
+- **Barra de Progresso Geral:** 0-100% (11 micro tarefas)
+- **Status Atual:** Texto dinâmico (ex: "Executando MT-03: Configurar Cloudflare...")
+- **Micro Tarefas (lista com checkmarks):**
+  - ☐ MT-01: Criar Repositório GitHub
+  - ☐ MT-02: Inicializar Estrutura
+  - ☐ MT-03: Configurar Cloudflare
+  - ☐ MT-04: Customizar ListingHub
+  - ☐ MT-05: Preparar Config JSON
+  - ☐ MT-06: Importar Listings
+  - ☐ MT-07: Gerar Páginas de Listings
+  - ☐ MT-08: Gerar Blog SEO
+  - ☐ MT-09: Injetar Monetização
+  - ☐ MT-10: Publicar no Cloudflare Pages
+  - ☐ MT-11: Arquivar no Google Drive
+- **Log de Execução:** Área de texto scrollable com timestamps
+- **Tempo Decorrido:** Contador em tempo real
+
+---
+
+## 4. PAYLOAD JSON ENVIADO AO N8N
+
+```json
+{
+  "project_name": "Dubai Coffee Directory",
+  "domain": "fond.coffee",
+  "subdomain": "dubai",
+  "full_domain": "dubai.fond.coffee",
+  "niche": "coffee shops",
+  "language": "en-US",
+  "city": {
+    "name": "Dubai",
+    "country": "United Arab Emirates",
+    "country_code": "AE"
+  },
+  "listings_count": 150,
+  "listings_source": {
+    "type": "scrape_genius_csv",
+    "gdrive_folder_id": "1a2b3c4d5e6f7g8h"
+  },
+  "categories": ["Specialty Coffee", "Cafeteria", "Roastery"],
+  "blog": {
+    "posts_informational": 50,
+    "posts_amazon_reviews": 20,
+    "posts_local_reviews": 10,
+    "keywords": ["best coffee in dubai", "specialty coffee dubai"]
+  },
+  "monetization": {
+    "amazon_affiliate_id": "techsites-20",
+    "google_adsense_id": "ca-pub-1234567890",
+    "google_analytics_id": "G-XXXXXXXXXX",
+    "listings_premium_price": 49.99,
+    "restro_saas_enabled": true
+  },
+  "infrastructure": {
+    "github_repo": "df-fond-coffee-dubai",
+    "github_owner": "reynaldodallin",
+    "cloudflare_zone_id": "abc123def456ghi789jkl012mno345pq",
+    "gdrive_folder_id": "1a2b3c4d5e6f7g8h9i0j",
+    "n8n_webhook_url": "https://n8n.waas.host/webhook/directory-factory"
+  },
+  "timestamp": "2026-05-22T17:00:00Z",
+  "triggered_by": "admin@techsites.ai"
+}
+```
+
+---
+
+## 5. LÓGICA JAVASCRIPT
+
+### 5.1. Validação do Formulário
+
+```javascript
+function validateForm() {
+  const errors = [];
+  
+  // Validação Bloco 1
+  if (!$('#project_name').val() || $('#project_name').val().length < 3) {
+    errors.push('Nome do projeto é obrigatório (mín 3 caracteres)');
+  }
+  
+  if (!$('#domain').val()) {
+    errors.push('Domínio raiz é obrigatório');
+  }
+  
+  const subdomain = $('#subdomain').val();
+  if (!subdomain || !/^[a-z0-9-]{2,63}$/.test(subdomain)) {
+    errors.push('Subdomínio inválido (apenas a-z, 0-9 e hífen, 2-63 chars)');
+  }
+  
+  // Validação Bloco 2
+  const listingsCount = parseInt($('#listings_count').val());
+  if (isNaN(listingsCount) || listingsCount < 10 || listingsCount > 10000) {
+    errors.push('Número de listings deve estar entre 10 e 10.000');
+  }
+  
+  // Validação Bloco 5
+  if (!$('#github_repo').val() || !/^[a-zA-Z0-9-_]+$/.test($('#github_repo').val())) {
+    errors.push('Nome do repositório GitHub inválido');
+  }
+  
+  const zoneId = $('#cloudflare_zone_id').val();
+  if (!zoneId || !/^[a-f0-9]{32}$/.test(zoneId)) {
+    errors.push('Cloudflare Zone ID inválido (32 caracteres hexadecimais)');
+  }
+  
+  if (errors.length > 0) {
+    showErrors(errors);
+    return false;
+  }
+  
+  return true;
+}
+```
+
+### 5.2. Construção do Payload
+
+```javascript
+function buildPayload() {
+  return {
+    project_name: $('#project_name').val(),
+    domain: $('#domain').val(),
+    subdomain: $('#subdomain').val(),
+    full_domain: $('#full_domain').val(),
+    niche: $('#niche').val(),
+    language: $('#language').val(),
+    listings_count: parseInt($('#listings_count').val()),
+    listings_source: {
+      type: $('#listings_source_type').val(),
+      gdrive_folder_id: $('#gdrive_folder_id').val() || null,
+      csv_url: $('#csv_url').val() || null
+    },
+    categories: $('#categories').val().split(',').map(c => c.trim()),
+    blog: {
+      posts_informational: parseInt($('#posts_informational').val()) || 0,
+      posts_amazon_reviews: parseInt($('#posts_amazon_reviews').val()) || 0,
+      posts_local_reviews: parseInt($('#posts_local_reviews').val()) || 0,
+      keywords: $('#keywords_seo').val().split(',').map(k => k.trim())
+    },
+    monetization: {
+      amazon_affiliate_id: $('#amazon_affiliate_id').val() || null,
+      google_adsense_id: $('#google_adsense_id').val() || null,
+      google_analytics_id: $('#google_analytics_id').val() || null,
+      listings_premium_price: parseFloat($('#listings_premium_price').val()) || 0,
+      restro_saas_enabled: $('#restro_saas_enabled').is(':checked')
+    },
+    infrastructure: {
+      github_repo: $('#github_repo').val(),
+      github_owner: 'reynaldodallin',
+      cloudflare_zone_id: $('#cloudflare_zone_id').val(),
+      gdrive_folder_id: $('#gdrive_backup_folder_id').val() || null,
+      n8n_webhook_url: 'https://n8n.waas.host/webhook/directory-factory'
+    },
+    timestamp: new Date().toISOString(),
+    triggered_by: 'admin@techsites.ai' // Substituir por usuário logado
+  };
+}
+```
+
+### 5.3. Trigger do Webhook N8N
+
+```javascript
+function triggerBuild() {
+  if (!validateForm()) return;
+  
+  const payload = buildPayload();
+  const webhookUrl = 'https://n8n.waas.host/webhook/directory-factory';
+  
+  // Mostrar modal de progresso
+  $('#progressModal').modal('show');
+  $('#buildButton').prop('disabled', true).text('Construindo...');
+  
+  // Enviar para N8N
+  fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => response.json())
+  .then(data => {
+    // Iniciar polling de status
+    const buildId = data.build_id;
+    startPolling(buildId);
+  })
+  .catch(error => {
+    console.error('Erro ao disparar build:', error);
+    showError('Falha ao iniciar construção do directory. Tente novamente.');
+    $('#buildButton').prop('disabled', false).text('Construir Directory');
+  });
+}
+```
+
+### 5.4. Polling de Status
+
+```javascript
+let pollingInterval;
+let startTime = Date.now();
+
+function startPolling(buildId) {
+  updateTimer();
+  
+  pollingInterval = setInterval(() => {
+    fetch(`https://n8n.waas.host/webhook/directory-factory/status/${buildId}`)
+      .then(response => response.json())
+      .then(status => {
+        updateProgress(status);
+        
+        if (status.build_status === 'completed') {
+          clearInterval(pollingInterval);
+          showSuccess(status);
+        } else if (status.build_status === 'failed') {
+          clearInterval(pollingInterval);
+          showError(status.error_message);
+        }
+      })
+      .catch(error => {
+        console.error('Erro no polling:', error);
+      });
+  }, 3000); // Poll a cada 3 segundos
+}
+
+function updateTimer() {
+  setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    $('#timerDisplay').text(`${minutes}m ${seconds}s`);
+  }, 1000);
+}
+
+function updateProgress(status) {
+  // Atualizar barra de progresso geral
+  const progress = (status.completed_microtasks.length / 11) * 100;
+  $('#progressBar').css('width', progress + '%').text(Math.floor(progress) + '%');
+  
+  // Atualizar status atual
+  $('#currentStatus').text(status.current_microtask_name || 'Preparando...');
+  
+  // Atualizar checkmarks das micro tarefas
+  status.completed_microtasks.forEach(mt => {
+    $(`#${mt}-check`).removeClass('text-muted').addClass('text-success');
+    $(`#${mt}-check i`).removeClass('fa-circle').addClass('fa-check-circle');
+  });
+  
+  // Adicionar ao log
+  if (status.last_log_entry) {
+    const timestamp = new Date().toLocaleTimeString();
+    $('#executionLog').append(`[${timestamp}] ${status.last_log_entry}\n`);
+    $('#executionLog').scrollTop($('#executionLog')[0].scrollHeight);
+  }
+}
+
+function showSuccess(status) {
+  $('#progressModal').modal('hide');
+  
+  Swal.fire({
+    icon: 'success',
+    title: 'Directory Construído com Sucesso!',
+    html: `
+      <p>Seu directory está LIVE em:</p>
+      <a href="${status.live_url}" target="_blank" class="btn btn-primary">
+        ${status.live_url}
+      </a>
+      <p class="mt-3"><small>Tempo total: ${$('#timerDisplay').text()}</small></p>
+    `,
+    confirmButtonText: 'Ver Directory'
+  }).then(() => {
+    window.open(status.live_url, '_blank');
+  });
+  
+  $('#buildButton').prop('disabled', false).text('Construir Novo Directory');
+}
+
+function showError(message) {
+  Swal.fire({
+    icon: 'error',
+    title: 'Erro na Construção',
+    text: message,
+    confirmButtonText: 'Tentar Novamente'
+  });
+  
+  $('#buildButton').prop('disabled', false).text('Construir Directory');
+}
+```
+
+---
+
+## 6. RESPOSTA DO N8N (Formato Esperado)
+
+### 6.1. Resposta Inicial (POST ao webhook)
+
+```json
+{
+  "status": "accepted",
+  "build_id": "df-20260522-170000-abc123",
+  "message": "Build iniciado com sucesso",
+  "estimated_time_minutes": 25
+}
+```
+
+### 6.2. Resposta de Status (GET polling)
+
+```json
+{
+  "build_id": "df-20260522-170000-abc123",
+  "build_status": "building",
+  "current_microtask": "MT-06",
+  "current_microtask_name": "Importando 150 listings do CSV",
+  "completed_microtasks": ["MT-01", "MT-02", "MT-03", "MT-04", "MT-05"],
+  "progress_percentage": 45,
+  "last_log_entry": "150 listings importados com sucesso de /fond-coffee/dubai/",
+  "started_at": "2026-05-22T17:00:00Z",
+  "estimated_completion": "2026-05-22T17:25:00Z"
+}
+```
+
+### 6.3. Resposta Final (Build Completo)
+
+```json
+{
+  "build_id": "df-20260522-170000-abc123",
+  "build_status": "completed",
+  "current_microtask": "MT-11",
+  "completed_microtasks": ["MT-01", "MT-02", "MT-03", "MT-04", "MT-05", "MT-06", "MT-07", "MT-08", "MT-09", "MT-10", "MT-11"],
+  "progress_percentage": 100,
+  "live_url": "https://dubai.fond.coffee",
+  "github_repo_url": "https://github.com/reynaldodallin/df-fond-coffee-dubai",
+  "cloudflare_pages_url": "https://df-fond-coffee-dubai.pages.dev",
+  "gdrive_backup_url": "https://drive.google.com/drive/folders/1a2b3c4d5e6f7g8h9i0j",
+  "total_listings": 150,
+  "total_blog_posts": 80,
+  "started_at": "2026-05-22T17:00:00Z",
+  "completed_at": "2026-05-22T17:23:45Z",
+  "duration_seconds": 1425
+}
+```
+
+---
+
+## 7. COMPONENTES METRONIC UTILIZADOS
+
+- **Cards:** `card`, `card-header`, `card-body`, `card-footer`
+- **Forms:** `form-control`, `form-select`, `form-check`
+- **Buttons:** `btn btn-primary`, `btn btn-success`
+- **Progress Bar:** `progress`, `progress-bar`
+- **Modals:** Bootstrap 5 modals
+- **Icons:** Font Awesome 6
+- **Alerts:** SweetAlert2
+- **Tags Input:** Tagify
+- **File Upload:** Dropzone.js
+
+---
+
+## 8. DEPENDÊNCIAS
+
+```html
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Font Awesome 6 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Tagify (para tags input) -->
+<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+
+<!-- Dropzone.js (para upload de arquivos) -->
+<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css">
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+<!-- Metronic CSS/JS (já incluídos no template) -->
+```
+
+---
+
+## 9. INSTRUÇÕES DE IMPLEMENTAÇÃO
+
+### Passo 1: Criar arquivo no Metronic
+
+No seu projeto Metronic, crie o arquivo:
+```
+/resources/views/admin/directory-builder.blade.php
+```
+(ou equivalente para sua stack)
+
+### Passo 2: Adicionar rota
+
+```php
+Route::get('/admin/directory-builder', [DirectoryBuilderController::class, 'index'])
+    ->name('admin.directory-builder');
+```
+
+### Passo 3: Implementar HTML/JS
+
+Use os blocos descritos neste documento para montar a página completa.
+
+### Passo 4: Configurar N8N
+
+Crie os workflows N8N (WF-01 a WF-11) conforme descrito no `DIRECTORY-FACTORY-PROJETO-TECNICO.md`.
+
+### Passo 5: Testar
+
+1. Preencher o formulário
+2. Clicar em "Construir Directory"
+3. Aguardar polling e conclusão
+4. Verificar directory LIVE
+
+---
+
+*Blueprint: Metronic Directory Builder | Versão: 1.0.0 | TechSites.ai | Maio 2026*
