@@ -1,0 +1,299 @@
+{
+  "project": {
+    "id": "miami-directory-001",
+    "name": "Miami Directory",
+    "version": "1.0.0",
+    "created": "2025-01-XX",
+    "status": "setup"
+  },
+  "location": {
+    "city": "Miami",
+    "state": "Florida",
+    "state_code": "FL",
+    "country": "United States",
+    "country_code": "US",
+    "timezone": "America/New_York",
+    "currency": "USD",
+    "coordinates": {
+      "latitude": 25.7617,
+      "longitude": -80.1918
+    }
+  },
+  "domain": {
+    "primary": "miami.fond.coffee",
+    "alternatives": ["miamicoffee.fond.coffee"],
+    "cloudflare_zone_id": "[INSERIR_ZONE_ID]",
+    "cloudflare_api_token": "[INSERIR_TOKEN]",
+    "ssl_enabled": true,
+    "cname_target": "directory-factory.pages.dev"
+  },
+  "template": {
+    "name": "ListingHub",
+    "version": "2.0",
+    "variant": "professional",
+    "theme_url": "https://themeforest.net/item/listinghub-directory-listing-template/"
+  },
+  "branding": {
+    "primary_color": "#FF6B35",
+    "secondary_color": "#004E89",
+    "accent_color": "#F77F00",
+    "logo_url": "/assets/miami-logo.svg",
+    "favicon_url": "/assets/favicon.ico",
+    "tagline": "Discover Miami's Best Coffee & Dining Spots",
+    "description": "The ultimate directory for coffee shops, cafes, and restaurants in Miami, Florida."
+  },
+  "localization": {
+    "languages": ["en", "es"],
+    "default_language": "en",
+    "date_format": "MM/DD/YYYY",
+    "time_format": "12h",
+    "measurement_system": "imperial"
+  },
+  "content": {
+    "scrape_target": 500,
+    "articles_target": 30,
+    "categories": [
+      "Coffee Shops",
+      "Cafes",
+      "Restaurants",
+      "Brunch Spots",
+      "Bakeries",
+      "Dessert Places"
+    ],
+    "neighborhoods": [
+      "Downtown Miami",
+      "Miami Beach",
+      "Wynwood",
+      "Little Havana",
+      "Brickell",
+      "Coconut Grove",
+      "Coral Gables"
+    ]
+  },
+  "scraping": {
+    "google_places_api_key": "[INSERIR_API_KEY]",
+    "queries": [
+      "coffee shop in Miami",
+      "cafe in Miami",
+      "restaurant in Miami",
+      "brunch spot in Miami",
+      "bakery in Miami",
+      "coffee Miami Beach",
+      "cafe Wynwood Miami"
+    ],
+    "required_fields": [
+      "name",
+      "address",
+      "phone",
+      "website",
+      "google_rating",
+      "latitude",
+      "longitude",
+      "opening_hours"
+    ],
+    "optional_fields": [
+      "email",
+      "instagram",
+      "facebook",
+      "delivery_options",
+      "parking"
+    ],
+    "min_rating": 3.5,
+    "min_reviews": 10,
+    "photo_count": 3
+  },
+  "github": {
+    "repository": "reynaldodallin/directory-factory",
+    "branch": "main",
+    "deploy_trigger": "cloudflare-pages",
+    "auto_deploy": true
+  },
+  "n8n": {
+    "base_url": "https://n8n.techsites.ai",
+    "webhooks": {
+      "scrape": "/webhook/miami-scrape",
+      "index": "/webhook/miami-index",
+      "campaign": "/webhook/miami-campaign",
+      "backup": "/webhook/miami-backup"
+    }
+  },
+  "storage": {
+    "google_drive": {
+      "enabled": true,
+      "folder_id": "[INSERIR_FOLDER_ID]",
+      "backup_frequency": "daily"
+    },
+    "cloudflare_images": {
+      "enabled": true,
+      "account_id": "[INSERIR_ACCOUNT_ID]",
+      "delivery_url": "https://imagedelivery.net/[HASH]"
+    }
+  },
+  "monetization": {
+    "listing_premium": {
+      "enabled": true,
+      "price_monthly": 49,
+      "features": [
+        "Featured badge",
+        "Top 3 in search results",
+        "Analytics dashboard",
+        "Priority support"
+      ]
+    },
+    "site_onepage": {
+      "enabled": true,
+      "price_setup": 199,
+      "price_monthly": 29,
+      "features": [
+        "Custom landing page",
+        "Custom domain or subdomain",
+        "Contact form",
+        "Google Analytics"
+      ]
+    },
+    "chatbot": {
+      "enabled": true,
+      "price_monthly": 99,
+      "features": [
+        "AI chatbot",
+        "Menu/hours FAQ",
+        "Lead capture",
+        "WhatsApp integration"
+      ]
+    },
+    "bundle": {
+      "enabled": true,
+      "price_monthly": 199,
+      "savings": 78,
+      "includes": ["listing_premium", "site_onepage", "chatbot"]
+    }
+  },
+  "payments": {
+    "stripe": {
+      "enabled": true,
+      "publishable_key": "[INSERIR_PUBLISHABLE_KEY]",
+      "secret_key": "[INSERIR_SECRET_KEY]",
+      "webhook_secret": "[INSERIR_WEBHOOK_SECRET]"
+    },
+    "tax_rate": 0.07,
+    "invoicing": {
+      "auto_send": true,
+      "reminder_days": [7, 3, 1]
+    }
+  },
+  "marketing": {
+    "email": {
+      "provider": "postmark",
+      "api_token": "[INSERIR_TOKEN]",
+      "from_email": "hello@miami.fond.coffee",
+      "from_name": "Miami Fond Team",
+      "campaign_size": 500
+    },
+    "whatsapp": {
+      "provider": "z-api",
+      "instance_id": "[INSERIR_INSTANCE_ID]",
+      "api_token": "[INSERIR_TOKEN]",
+      "campaign_size": 500,
+      "daily_limit": 50,
+      "message_template": "miami-launch"
+    },
+    "utm_tracking": {
+      "source": "directory",
+      "medium": "email",
+      "campaign": "miami-launch-2025"
+    }
+  },
+  "analytics": {
+    "google_analytics": {
+      "enabled": true,
+      "measurement_id": "G-XXXXXXXXXX"
+    },
+    "google_search_console": {
+      "enabled": true,
+      "property_url": "https://miami.fond.coffee"
+    },
+    "better_uptime": {
+      "enabled": true,
+      "monitor_url": "[INSERIR_URL]"
+    }
+  },
+  "seo": {
+    "meta_title": "Miami Coffee & Restaurant Directory | Miami.fond.coffee",
+    "meta_description": "Discover the best coffee shops, cafes, and restaurants in Miami, FL. Complete directory with reviews, photos, and contact information.",
+    "keywords": [
+      "Miami coffee",
+      "Miami cafes",
+      "Miami restaurants",
+      "coffee shops Miami Beach",
+      "Wynwood cafes",
+      "Little Havana coffee"
+    ],
+    "og_image": "/assets/og-miami.jpg",
+    "sitemap_url": "https://miami.fond.coffee/sitemap.xml",
+    "robots_txt": "allow"
+  },
+  "launch": {
+    "target_date": "2025-01-XX",
+    "duration_hours": 48,
+    "phases": [
+      {
+        "name": "Setup",
+        "duration_hours": 4,
+        "tasks": ["MT-01", "MT-02"]
+      },
+      {
+        "name": "Scrape & Index",
+        "duration_hours": 12,
+        "tasks": ["MT-03", "MT-04", "MT-05"]
+      },
+      {
+        "name": "Content",
+        "duration_hours": 8,
+        "tasks": ["MT-06"]
+      },
+      {
+        "name": "Campaigns",
+        "duration_hours": 12,
+        "tasks": ["MT-07", "MT-08"]
+      },
+      {
+        "name": "Monetization",
+        "duration_hours": 8,
+        "tasks": ["MT-09", "MT-10"]
+      },
+      {
+        "name": "QA & Launch",
+        "duration_hours": 4,
+        "tasks": ["MT-11"]
+      }
+    ]
+  },
+  "metrics": {
+    "launch": {
+      "listings_target": 500,
+      "articles_target": 30,
+      "emails_sent": 500,
+      "whatsapp_sent": 500
+    },
+    "week1": {
+      "premium_conversions": 10,
+      "onepage_conversions": 3,
+      "chatbot_conversions": 2,
+      "unique_visitors": 1000,
+      "leads_captured": 50
+    },
+    "month1": {
+      "mrr_target": 2500,
+      "active_clients": 25,
+      "monthly_visitors": 10000,
+      "complete_listings": 500
+    }
+  },
+  "team": {
+    "project_manager": "Reynaldo",
+    "developer": "Max (AI Assistant)",
+    "platform": "TechSites.ai",
+    "support_email": "tech@techsites.ai",
+    "slack_channel": "#directory-factory"
+  }
+}
