@@ -1,0 +1,242 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Directory Config Schema",
+  "description": "Schema JSON para configuração completa de um Directory na Directory Factory (TechSites.ai)",
+  "type": "object",
+  "required": [
+    "project_name",
+    "domain",
+    "subdomain",
+    "niche",
+    "language",
+    "listings_count",
+    "github_repo",
+    "cloudflare_zone_id"
+  ],
+  "properties": {
+    "project_name": {
+      "type": "string",
+      "description": "Nome do projeto/directory",
+      "minLength": 3,
+      "maxLength": 100,
+      "examples": ["Dubai Coffee Directory", "Curitiba Cafes"]
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domínio raiz",
+      "enum": ["ama.cafe", "fond.coffee", "places.guide", "cwb.site", "llc.reviews", "hho.expert"],
+      "examples": ["fond.coffee"]
+    },
+    "subdomain": {
+      "type": "string",
+      "description": "Subdomínio do directory (sem o domínio raiz)",
+      "pattern": "^[a-z0-9-]+$",
+      "minLength": 2,
+      "maxLength": 63,
+      "examples": ["dubai", "curitiba", "newyork"]
+    },
+    "full_domain": {
+      "type": "string",
+      "description": "Domínio completo (gerado automaticamente: subdomain.domain)",
+      "examples": ["dubai.fond.coffee", "curitiba.ama.cafe"]
+    },
+    "niche": {
+      "type": "string",
+      "description": "Nicho do directory",
+      "minLength": 3,
+      "examples": ["coffee shops", "restaurants", "dentists", "barbershops"]
+    },
+    "language": {
+      "type": "string",
+      "description": "Idioma principal do directory",
+      "enum": ["pt-BR", "pt-PT", "en-US", "en-GB", "es-ES", "fr-FR"],
+      "examples": ["en-US", "pt-BR"]
+    },
+    "city": {
+      "type": "object",
+      "description": "Informações da cidade",
+      "properties": {
+        "name": {"type": "string", "examples": ["Dubai", "Curitiba"]},
+        "country": {"type": "string", "examples": ["United Arab Emirates", "Brazil"]},
+        "country_code": {"type": "string", "pattern": "^[A-Z]{2}$", "examples": ["AE", "BR"]},
+        "timezone": {"type": "string", "examples": ["Asia/Dubai", "America/Sao_Paulo"]},
+        "latitude": {"type": "number", "examples": [25.2048]},
+        "longitude": {"type": "number", "examples": [55.2708]}
+      }
+    },
+    "listings_count": {
+      "type": "integer",
+      "description": "Número de listings a serem importados",
+      "minimum": 10,
+      "maximum": 10000,
+      "examples": [150, 500]
+    },
+    "listings_source": {
+      "type": "object",
+      "description": "Fonte dos listings",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["scrape_genius_csv", "google_places_api", "manual_csv", "database"],
+          "examples": ["scrape_genius_csv"]
+        },
+        "csv_url": {"type": "string", "format": "uri", "examples": ["https://drive.google.com/file/d/abc123"]},
+        "gdrive_folder_id": {"type": "string"},
+        "api_key": {"type": "string"},
+        "query": {"type": "string", "examples": ["coffee shops in Dubai"]}
+      }
+    },
+    "categories": {
+      "type": "array",
+      "description": "Categorias de listings",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "examples": ["Specialty Coffee", "Cafeteria"]},
+          "slug": {"type": "string", "pattern": "^[a-z0-9-]+$", "examples": ["specialty-coffee"]},
+          "description": {"type": "string"}
+        }
+      },
+      "minItems": 1
+    },
+    "blog": {
+      "type": "object",
+      "description": "Configuração do blog SEO",
+      "properties": {
+        "posts_informational": {
+          "type": "integer",
+          "description": "Número de posts informativos (tráfego orgânico)",
+          "minimum": 0,
+          "maximum": 1000,
+          "examples": [50]
+        },
+        "posts_amazon_reviews": {
+          "type": "integer",
+          "description": "Número de reviews de produtos Amazon",
+          "minimum": 0,
+          "maximum": 500,
+          "examples": [20]
+        },
+        "posts_local_reviews": {
+          "type": "integer",
+          "description": "Número de reviews de estabelecimentos locais (premium)",
+          "minimum": 0,
+          "maximum": 200,
+          "examples": [10]
+        },
+        "keywords": {
+          "type": "array",
+          "description": "Keywords principais para conteúado SEO",
+          "items": {"type": "string"},
+          "examples": [["best coffee in dubai", "specialty coffee dubai", "coffee shops near me"]]
+        }
+      }
+    },
+    "monetization": {
+      "type": "object",
+      "description": "Configuração de monetização",
+      "properties": {
+        "amazon_affiliate_id": {"type": "string", "examples": ["techsites-20"]},
+        "google_adsense_id": {"type": "string", "examples": ["ca-pub-1234567890123456"]},
+        "google_analytics_id": {"type": "string", "examples": ["G-XXXXXXXXXX"]},
+        "listings_premium_price": {
+          "type": "number",
+          "description": "Preço mensal para listing premium (USD)",
+          "minimum": 0,
+          "examples": [49.99]
+        },
+        "restro_saas_enabled": {
+          "type": "boolean",
+          "description": "Habilitar integração Restro SaaS (WhatsApp ordering)",
+          "examples": [true]
+        }
+      }
+    },
+    "infrastructure": {
+      "type": "object",
+      "description": "Configuração de infraestrutura",
+      "required": ["github_repo", "cloudflare_zone_id"],
+      "properties": {
+        "github_repo": {
+          "type": "string",
+          "description": "Nome do repositório GitHub (sem owner)",
+          "pattern": "^[a-zA-Z0-9-_]+$",
+          "examples": ["df-fond-coffee-dubai"]
+        },
+        "github_owner": {"type": "string", "examples": ["reynaldodallin"]},
+        "github_full_repo": {"type": "string", "examples": ["reynaldodallin/df-fond-coffee-dubai"]},
+        "cloudflare_zone_id": {
+          "type": "string",
+          "description": "Cloudflare Zone ID do domínio raiz",
+          "pattern": "^[a-f0-9]{32}$",
+          "examples": ["abc123def456ghi789jkl012mno345pq"]
+        },
+        "cloudflare_account_id": {"type": "string"},
+        "gdrive_folder_id": {
+          "type": "string",
+          "description": "Google Drive folder ID para backup",
+          "examples": ["1a2b3c4d5e6f7g8h9i0j"]
+        },
+        "n8n_webhook_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL do webhook N8N master",
+          "examples": ["https://n8n.waas.host/webhook/directory-factory"]
+        }
+      }
+    },
+    "seo": {
+      "type": "object",
+      "description": "Configurações SEO",
+      "properties": {
+        "meta_title_template": {"type": "string", "examples": ["{{name}} - {{niche}} in {{city}} | {{domain}}"]},
+        "meta_description_template": {"type": "string"},
+        "schema_types": {
+          "type": "array",
+          "items": {"type": "string"},
+          "examples": [["LocalBusiness", "CafeOrCoffeeShop", "BreadcrumbList"]]
+        },
+        "robots_txt": {"type": "string"},
+        "sitemap_enabled": {"type": "boolean", "default": true}
+      }
+    },
+    "branding": {
+      "type": "object",
+      "description": "Branding do directory",
+      "properties": {
+        "logo_url": {"type": "string", "format": "uri"},
+        "favicon_url": {"type": "string", "format": "uri"},
+        "primary_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "examples": ["#FF6B35"]},
+        "secondary_color": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"},
+        "font_family": {"type": "string", "examples": ["Inter", "Poppins"]}
+      }
+    },
+    "status": {
+      "type": "object",
+      "description": "Status do projeto",
+      "properties": {
+        "created_at": {"type": "string", "format": "date-time"},
+        "updated_at": {"type": "string", "format": "date-time"},
+        "deployed_at": {"type": "string", "format": "date-time"},
+        "live_url": {"type": "string", "format": "uri"},
+        "build_status": {
+          "type": "string",
+          "enum": ["pending", "building", "completed", "failed"],
+          "examples": ["completed"]
+        },
+        "current_microtask": {"type": "string", "pattern": "^MT-[0-9]{2}$", "examples": ["MT-10"]},
+        "completed_microtasks": {
+          "type": "array",
+          "items": {"type": "string"},
+          "examples": [["MT-01", "MT-02", "MT-03"]]
+        }
+      }
+    },
+    "version": {
+      "type": "string",
+      "description": "Versão do schema",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "examples": ["1.0.0"]
+    }
+  }
+}
